@@ -8,11 +8,11 @@ package myagent;
 import agent.Action;
 import agent.Agent;
 import agent.Percept;
-import vacworld.ShutOff;
-import vacworld.SuckDirt;
-import vacworld.TurnLeft;
-import vacworld.TurnRight;
-import vacworld.VacPercept;
+import vacworld.*;
+
+import java.util.Random;
+
+import static java.lang.Math.random;
 
 /* Change the code as appropriate.  This code
    is here to help you understand the mechanism
@@ -20,9 +20,8 @@ import vacworld.VacPercept;
 
    Array para guardar ubicaciones
    Variable para la direccion traer de la clase VacPercept
-   Default es el gofoward
-   Que se apague a los 200 movimientos
 */
+
 
 public class VacAgent extends Agent {
 
@@ -31,33 +30,57 @@ public class VacAgent extends Agent {
     private boolean dirtStatus = true;
     private boolean bumpFeltInPrevMove = true;
     private boolean obstacleInFront = true;
+    private int numberMovements = 0;
 
-    public void see(Percept p) {
-
+    public void see(Percept p)
+    {
         VacPercept vp = (VacPercept) p;
         dirtStatus = vp.seeDirt();
         bumpFeltInPrevMove = vp.feelBump();
         obstacleInFront = vp.seeObstacle();
     }
 
-    public Action selectAction() {
+    public Action selectAction()
+    {
+        numberMovements++;
         Action action = new SuckDirt();
         SuckDirt suckDirt = new SuckDirt();
         TurnLeft turnLeft = new TurnLeft();
         TurnRight turnRight = new TurnRight();
+        GoForward goForward = new GoForward();
         ShutOff shutOff = new ShutOff();
-        
+        Random r = new Random();
+        float chance = r.nextFloat();
+
+        if(obstacleInFront)
+        {
+            if(chance <0.5)
+                action = turnLeft;
+            else
+                action = turnRight;
+        }
+        else
+        {
+            if( chance <0.2)
+                action = turnLeft;
+            else if (chance <0.4)
+                action = turnRight;
+            else
+                action = goForward;
+        }
+
         if(dirtStatus)
             action = suckDirt;
         if(bumpFeltInPrevMove)
-              action = turnLeft;
-        if(obstacleInFront)
-              action = turnRight;
-        
+            action = turnLeft;
+        if (numberMovements==200)
+            action = shutOff;
+
         return action;
     }
 
-    public String getId() {
+    public String getId()
+    {
         return ID;
     }
 
