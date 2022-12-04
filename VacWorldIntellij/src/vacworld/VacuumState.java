@@ -405,10 +405,6 @@ public class VacuumState extends State {
 
     }
 
-    public int[][] getMap() {
-        return map.clone();
-    }
-
     /**
      * Print an output of the state to the screen. This output includes a map as
      * well as information about the agent's location and the direction it is
