@@ -21,11 +21,15 @@ import vacworld.TurnRight;
 import vacworld.VacPercept;
 import agent.Action;
 
-
-// Representa el estado de la aspiradora, permite al agente recordar todas los ubicaciones que ha explorado
-
-public class InternalState
-{
+/**
+ * Represent the internal state of our vacuum cleaning agent. This class allows
+ * our agent to remember all locations it has explored. The agent updates an
+ * instance of this class to keep track of information about new locations.
+ * 
+ * @author Daniel Phang
+ * 
+ */
+public class InternalState {
     /* Keep track of the locations seen on the map. */
     private final HashMap<Vector2, LocationInformation> worldMap;
 
@@ -174,8 +178,7 @@ public class InternalState
      * @param position
      * @return
      */
-    public boolean isLocationDirty(Vector2 position)
-    {
+    public boolean isLocationDirty(Vector2 position) {
         LocationInformation loc = worldMap.get(position);
         if (loc != null) {
             return loc.isDirty();

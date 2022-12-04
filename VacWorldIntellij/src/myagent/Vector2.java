@@ -11,7 +11,13 @@ package myagent;
 
 import vacworld.Direction;
 
-
+/**
+ * Represent a two dimensional integer vector. Can be used for representing
+ * positions, or as an actual vector.
+ * 
+ * @author Daniel Phang
+ * 
+ */
 public class Vector2 {
     /*
      * Unit direction vectors. Based on the orientation described in the

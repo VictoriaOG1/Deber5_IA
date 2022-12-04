@@ -1,87 +1,44 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package myagent;
 
+import vacworld.VacPercept;
 import agent.Action;
 import agent.Agent;
 import agent.Percept;
-import vacworld.*;
-
-import java.util.Random;
-
-import static java.lang.Math.random;
-
-/* Change the code as appropriate.  This code
-   is here to help you understand the mechanism
-   of the simulator.
-
-   Array para guardar ubicaciones
-   Variable para la direccion traer de la clase VacPercept
-*/
 
 
 public class VacAgent extends Agent {
-
     private final String ID = "1";
-    // Think about locations you already visited.  Remember those.
-    private boolean dirtStatus = true;
-    private boolean bumpFeltInPrevMove = true;
-    private boolean obstacleInFront = true;
-    private int numberMovements = 0;
 
-    public void see(Percept p)
-    {
-        VacPercept vp = (VacPercept) p;
-        dirtStatus = vp.seeDirt();
-        bumpFeltInPrevMove = vp.feelBump();
-        obstacleInFront = vp.seeObstacle();
+    // Agent state, position, direction, and map information.
+    private InternalState vacuumState;
+
+    //Helper for agent to choose what next action do
+    private Path path;
+
+
+    public VacAgent() {
+        vacuumState = new InternalState();
+        path = new Path(vacuumState);
     }
 
-    public Action selectAction()
-    {
-        numberMovements++;
-        Action action = new SuckDirt();
-        SuckDirt suckDirt = new SuckDirt();
-        TurnLeft turnLeft = new TurnLeft();
-        TurnRight turnRight = new TurnRight();
-        GoForward goForward = new GoForward();
-        ShutOff shutOff = new ShutOff();
-        Random r = new Random();
-        float chance = r.nextFloat();
-
-        if(obstacleInFront)
-        {
-            if(chance <0.5)
-                action = turnLeft;
-            else
-                action = turnRight;
-        }
-        else
-        {
-            if( chance <0.2)
-                action = turnLeft;
-            else if (chance <0.4)
-                action = turnRight;
-            else
-                action = goForward;
+    @Override
+    public void see(Percept p) {
+        if (!(p instanceof VacPercept)) {
+            return;
         }
 
-        if(dirtStatus)
-            action = suckDirt;
-        if(bumpFeltInPrevMove)
-            action = turnLeft;
-        if (numberMovements==200)
-            action = shutOff;
-
-        return action;
+        // Update the internal state with the percept
+        vacuumState.update((VacPercept) p);
     }
 
-    public String getId()
-    {
+    @Override
+    public Action selectAction() {
+        return path.nextAction();
+    }
+
+    @Override
+    public String getId() {
         return ID;
     }
-
 }
