@@ -30,16 +30,17 @@ public class VacuumState extends State {
      */
     public static final int WALL = 2;
 
-    /* Default map for initial state.
-     Note the interior arrays are columns in the map, not rows */
-    protected static int[][] defaultMap
-            = {{WALL, WALL, WALL, WALL, WALL, WALL, WALL},
-            {WALL, CLEAR, CLEAR, CLEAR, WALL, WALL, WALL},
-            {WALL, CLEAR, DIRT, CLEAR, CLEAR, WALL, WALL},
-            {WALL, CLEAR, CLEAR, CLEAR, CLEAR, CLEAR, WALL},
-            {WALL, CLEAR, DIRT, CLEAR, CLEAR, DIRT, WALL},
-            {WALL, WALL, WALL, WALL, CLEAR, CLEAR, WALL},
-            {WALL, WALL, WALL, WALL, WALL, WALL, WALL}};
+    /*
+     * Default map for initial state.
+     * Note the interior arrays are columns in the map, not rows
+     */
+    protected static int[][] defaultMap = { { WALL, WALL, WALL, WALL, WALL, WALL, WALL },
+            { WALL, CLEAR, CLEAR, CLEAR, WALL, WALL, WALL },
+            { WALL, CLEAR, DIRT, CLEAR, CLEAR, WALL, WALL },
+            { WALL, CLEAR, CLEAR, CLEAR, CLEAR, CLEAR, WALL },
+            { WALL, CLEAR, DIRT, CLEAR, CLEAR, DIRT, WALL },
+            { WALL, WALL, WALL, WALL, CLEAR, CLEAR, WALL },
+            { WALL, WALL, WALL, WALL, WALL, WALL, WALL } };
 
     protected static double DIRT_CHANCE = 0.37;
     protected static double WALL_CHANCE = 0.22;
@@ -158,7 +159,7 @@ public class VacuumState extends State {
         }
         // state.display();
         fillUnreachableSquares(state);
-        state.numDirtyLocs = state.countDirtyLocs();   // some dirty locs might have been filled by walls
+        state.numDirtyLocs = state.countDirtyLocs(); // some dirty locs might have been filled by walls
         return state;
     }
 
@@ -230,7 +231,7 @@ public class VacuumState extends State {
     /**
      * Return the agent's orientation. Note that the constants in the Direction
      * class are used to interpret the meaning of this
-      result.
+     * result.
      */
     public int getAgentDir() {
         return agentDir;
@@ -371,8 +372,10 @@ public class VacuumState extends State {
         }
         output.println("+");
 
-        /* To print to the screen properly, the loop in the Y
-         direction must be the outer loop. */
+        /*
+         * To print to the screen properly, the loop in the Y
+         * direction must be the outer loop.
+         */
         for (int i = 0; i < height; i++) {
             output.print(i + "|");
             for (int j = 0; j < width; j++) {
@@ -400,6 +403,10 @@ public class VacuumState extends State {
                 + "Facing: " + getAgentDirString());
         output.println();
 
+    }
+
+    public int[][] getMap() {
+        return map.clone();
     }
 
     /**

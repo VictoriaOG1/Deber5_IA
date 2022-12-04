@@ -1,7 +1,5 @@
 package improve;
 
-import javax.security.auth.x500.X500Principal;
-
 import vacworld.Direction;
 
 public class UnitVector {
@@ -13,6 +11,7 @@ public class UnitVector {
     public final int x;
     public final int y;
 
+    // Constructors
     public UnitVector() {
         this.x = 0;
         this.y = 0;
@@ -73,7 +72,7 @@ public class UnitVector {
         return new UnitVector(a.x + b.x, a.y + b.y);
     }
 
-    public static UnitVector dirVector(int direction) {
+    public static UnitVector dirToVec(int direction) {
         if (direction == Direction.NORTH) {
             return NORTH;
         } else if (direction == Direction.WEST) {
@@ -87,7 +86,7 @@ public class UnitVector {
         }
     }
 
-    public static int vecDirection(UnitVector direction) {
+    public static int vecToDir(UnitVector direction) {
         if (direction.equals(NORTH)) {
             return Direction.NORTH;
         } else if (direction.equals(WEST)) {

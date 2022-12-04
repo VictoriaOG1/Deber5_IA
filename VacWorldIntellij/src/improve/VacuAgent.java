@@ -7,22 +7,24 @@ import agent.Percept;
 
 public class VacuAgent extends Agent {
 
-    private State iState;
+    private State state;
     private Route route;
 
     public VacuAgent() {
-        iState = new State();
-        route = new Route(iState);
+        state = new State();
+        route = new Route(state);
     }
 
     @Override
     public void see(Percept p) {
+        // Check that the percept is the right type
         if (!(p instanceof VacPercept)) {
             System.out.println("Percept is not of type VacPercept");
             return;
         }
 
-        iState.update((VacPercept) p);
+        // Update the state with the percept seen
+        state.updateState((VacPercept) p);
     }
 
     @Override
@@ -32,6 +34,6 @@ public class VacuAgent extends Agent {
 
     @Override
     public String getId() {
-        return "VAC-e";
+        return "VAC-EC";
     }
 }

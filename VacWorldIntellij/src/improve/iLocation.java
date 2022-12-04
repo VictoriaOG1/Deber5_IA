@@ -6,9 +6,9 @@ public class iLocation {
     private boolean explored;
 
     public iLocation(boolean obstacle) {
+        this.obstacle = obstacle;
         this.dirty = false;
         this.explored = false;
-        this.obstacle = obstacle;
     }
 
     public void setObstacle(boolean obstacle) {

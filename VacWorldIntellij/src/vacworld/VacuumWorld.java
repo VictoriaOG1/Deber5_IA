@@ -372,6 +372,7 @@ public class VacuumWorld extends Environment {
         if (getNumActions() >= MAX_ACTIONS) {
             out.println("  Loop penalty: -100");
         }
+
         out.println("  Dirt left: \t" + getDirtScore() + "\t("
                 + getNumDirtyLocs() + ")");
         out.println("  Bumps: \t" + getBumpsScore() + "\t(" + numBumps + ")");

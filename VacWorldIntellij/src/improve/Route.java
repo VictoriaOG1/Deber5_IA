@@ -7,8 +7,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
-import javax.annotation.processing.RoundEnvironment;
-
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -23,47 +21,49 @@ public class Route {
     State state;
     LinkedList<Action> route;
 
+    // Constructor
     public Route(State state) {
         this.state = state;
         this.route = new LinkedList<Action>();
     }
 
+    // Decide the nextStep step
     public Action nextAction() {
         if (state.isTurnedOff()) {
             return null;
         }
 
+        // If detected an obstacle, dirt, or bump change route
         if (state.isObstacleSeen() || state.isDirtSeen()
                 || state.isFeltBump()) {
             route.clear();
         }
 
         if (route.isEmpty()) {
-            buildPlan();
+            buildRoute();
         }
 
-        Action next = route.remove();
-        state.update(next);
+        Action nextStep = route.remove();
+        state.update(nextStep);
 
-        return next;
+        return nextStep;
     }
 
-    private void buildPlan() {
+    private void buildRoute() {
         final UnitVector position = state.getAgentPosition();
         if (state.isLocationDirty(position)) {
             route.add(new SuckDirt());
         } else {
-            buildMovementPlan();
+            buildMovementRoute();
         }
 
-        // If a route is empty, presumably there was nothing to do (e.g no
-        // movement route), so we're done.
+        // If a route is empty, presumably there was nothing to do, done.
         if (route.isEmpty()) {
             route.add(new ShutOff());
         }
     }
 
-    private void buildMovementPlan() {
+    private void buildMovementRoute() {
         final UnitVector unexplored = findUnexploredPosition();
 
         if (unexplored == null) {
@@ -83,7 +83,7 @@ public class Route {
 
         while (!path.isEmpty()) {
             next = path.remove();
-            nextDirection = UnitVector.vecDirection(UnitVector
+            nextDirection = UnitVector.vecToDir(UnitVector
                     .subtract(next, current));
 
             if (nextDirection != currentDirection) {
@@ -195,7 +195,7 @@ public class Route {
             while (it2.hasNext()) {
                 neighbor = it2.next();
 
-                currentDirection = UnitVector.vecDirection(UnitVector.subtract(
+                currentDirection = UnitVector.vecToDir(UnitVector.subtract(
                         neighbor, current));
 
                 tentativeG = g.get(current)

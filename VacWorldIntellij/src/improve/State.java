@@ -15,57 +15,58 @@ import agent.Action;
 public class State {
     private final HashMap<UnitVector, iLocation> vacMap;
 
-    private int agentDirection;
-    private UnitVector agentPosition;
+    private int agentDir;
+    private UnitVector posAgent;
     private boolean obstacleSeen;
     private boolean feltBump;
-    private boolean dirtSeen;
     private boolean turnedOff;
+    private boolean dirtSeen;
 
     public State() {
         vacMap = new HashMap<UnitVector, iLocation>();
-        agentDirection = Direction.NORTH;
-        agentPosition = new UnitVector(0, 0);
-        vacMap.put(agentPosition, new iLocation(false));
+        agentDir = Direction.NORTH;
+        posAgent = new UnitVector(0, 0);
+        vacMap.put(posAgent, new iLocation(false));
         obstacleSeen = false;
     }
 
     public int getAgentDirection() {
-        return agentDirection;
+        return agentDir;
     }
 
     public UnitVector getAgentPosition() {
-        return agentPosition;
+        return posAgent;
     }
 
     public HashMap<UnitVector, iLocation> getWorldMap() {
         return vacMap;
     }
 
-    public void update(VacPercept p) {
-        iLocation current;
-        if (!vacMap.containsKey(agentPosition)) {
-            current = new iLocation(false);
-            vacMap.put(agentPosition, current);
+    public void updateState(VacPercept p) {
+        iLocation currentPos;
+        if (!vacMap.containsKey(posAgent)) {
+            currentPos = new iLocation(false);
+            vacMap.put(posAgent, currentPos);
         }
 
         dirtSeen = p.seeDirt();
         feltBump = p.feelBump();
 
-        current = vacMap.get(agentPosition);
-        current.setDirty(dirtSeen);
-        current.setExplored(true);
+        currentPos = vacMap.get(posAgent);
+        currentPos.setDirty(dirtSeen);
+        currentPos.setExplored(true);
 
         UnitVector aroundPosition;
         boolean obstacle;
         for (int i = Direction.NORTH; i <= Direction.WEST; ++i) {
-            aroundPosition = new UnitVector(agentPosition.getX()
+            aroundPosition = new UnitVector(posAgent.getX()
                     + Direction.DELTA_X[i],
-                    agentPosition.getY()
+                    posAgent.getY()
                             + Direction.DELTA_Y[i]);
 
             obstacle = false;
-            if (i == agentDirection) {
+
+            if (i == agentDir) {// Front location
                 obstacleSeen = p.seeObstacle();
                 obstacle = obstacleSeen;
             }
@@ -82,7 +83,7 @@ public class State {
     }
 
     private void updatePosition(UnitVector position) {
-        this.agentPosition = position;
+        this.posAgent = position;
     }
 
     private void updateDirty(UnitVector position, boolean dirty) {
@@ -90,8 +91,8 @@ public class State {
             vacMap.put(position, new iLocation(false));
         }
 
-        iLocation current = vacMap.get(position);
-        current.setDirty(dirty);
+        iLocation currentPos = vacMap.get(position);
+        currentPos.setDirty(dirty);
     }
 
     public boolean isLocationDirty(UnitVector position) {
@@ -147,19 +148,19 @@ public class State {
 
     public void update(Action next) {
         if (next instanceof SuckDirt) {
-            updateDirty(agentPosition, false);
+            updateDirty(posAgent, false);
         } else if (next instanceof GoForward && !isFeltBump()) {
-            updatePosition(UnitVector.addition(agentPosition,
-                    UnitVector.dirVector(agentDirection)));
+            updatePosition(UnitVector.addition(posAgent,
+                    UnitVector.dirToVec(agentDir)));
         } else if (next instanceof TurnLeft) {
-            --agentDirection;
-            if (agentDirection < Direction.NORTH) {
-                agentDirection = Direction.WEST;
+            --agentDir;
+            if (agentDir < Direction.NORTH) {
+                agentDir = Direction.WEST;
             }
         } else if (next instanceof TurnRight) {
-            ++agentDirection;
-            if (agentDirection > Direction.WEST) {
-                agentDirection = Direction.NORTH;
+            ++agentDir;
+            if (agentDir > Direction.WEST) {
+                agentDir = Direction.NORTH;
             }
         } else if (next instanceof ShutOff) {
             turnedOff = true;
