@@ -7,12 +7,11 @@ import java.io.*;
  * A simulator for the vacuum cleaning world environment. This environment is
  * inaccessible, deterministic, static and discrete.
  */
-public class
-VacuumWorld extends Environment {
+public class VacuumWorld extends Environment {
 
     protected static final int MAX_ACTIONS = 200;
 
-    // scoring information 
+    // scoring information
     protected int numMoves = 0;
     protected int numTurns = 0;
     protected int numSucks = 0;
@@ -143,7 +142,7 @@ VacuumWorld extends Environment {
             waitForUser();
         }
 
-        a = (Agent) agents.get(0);   // the first agent is the only agent
+        a = (Agent) agents.get(0); // the first agent is the only agent
         boolean quit = false;
         while (!isComplete() && !quit) {
             p = getPercept(a);
@@ -181,9 +180,12 @@ VacuumWorld extends Environment {
 
     /**
      * Runs the program. The usage is:
+     * 
      * <pre>
      * java vacworld.VacuumWorld [-batch] [-rand integer] agentpack
-     * </pre> The package containing the agent code (the VacAgent class) must be
+     * </pre>
+     * 
+     * The package containing the agent code (the VacAgent class) must be
      * specified as a command-line parameter. By default, it runs in interactive
      * mode, requiring the user to press a key after each action. To run in
      * batch mode, use the -batch switch. To test the agent in different
@@ -227,7 +229,7 @@ VacuumWorld extends Environment {
             // dynamically load agent class from the package specified on the command line
             String agentName = null;
             try {
-                //agentName = args[i] + ".VacAgent";
+                // agentName = args[i] + ".VacAgent";
                 agentName = "myagent" + ".VacAgent";
                 ClassLoader myClassLoader = ClassLoader.getSystemClassLoader();
                 Class myClass = myClassLoader.loadClass(agentName);
@@ -237,7 +239,7 @@ VacuumWorld extends Environment {
                 System.err.println("ERROR: Loading class " + agentName);
                 System.exit(1);
             }
-            //i++;
+            // i++;
         }
 
         System.out.println("The Vacuum Cleaner World Agent Testbed");
@@ -277,17 +279,17 @@ VacuumWorld extends Environment {
      * version of the simulator
      */
     /*
-     public boolean gotHome() {
-
-     VacuumState vstate;
-
-     vstate = (VacuumState)state;
-     if (((VacuumState)state).isRobotOff() && 
-     vstate.getAgentX() == 1 && vstate.getAgentY() == 1)
-     return true;
-     else
-     return false;
-     }
+     * public boolean gotHome() {
+     * 
+     * VacuumState vstate;
+     * 
+     * vstate = (VacuumState)state;
+     * if (((VacuumState)state).isRobotOff() &&
+     * vstate.getAgentX() == 1 && vstate.getAgentY() == 1)
+     * return true;
+     * else
+     * return false;
+     * }
      */
     /**
      * Returns the number of actions the agent has executed.
@@ -320,8 +322,8 @@ VacuumWorld extends Environment {
     protected int getPerformanceMeasure() {
 
         int score;
-      // score = 1000 + getMovesScore() + getTurnsScore() + getSucksScore() +
-        //    getBumpsScore() + getDirtScore() + getHomeScore();
+        // score = 1000 + getMovesScore() + getTurnsScore() + getSucksScore() +
+        // getBumpsScore() + getDirtScore() + getHomeScore();
         score = 1000 + getMovesScore() + getTurnsScore() + getSucksScore()
                 + getBumpsScore() + getDirtScore();
         if (timedOut()) {
@@ -354,22 +356,23 @@ VacuumWorld extends Environment {
     }
 
     /*
-     protected int getHomeScore() {
-     if (gotHome() == false)
-     return -200;
-     else
-     return 0;
-     }
+     * protected int getHomeScore() {
+     * if (gotHome() == false)
+     * return -200;
+     * else
+     * return 0;
+     * }
      */
     protected void printScore(PrintStream out) {
 
         out.println("Evaluation:");
         out.println("----------");
         out.println("  Base score: \t1000");
-        // out.println("  Home penalty: " + getHomeScore());
+        // out.println(" Home penalty: " + getHomeScore());
         if (getNumActions() >= MAX_ACTIONS) {
             out.println("  Loop penalty: -100");
         }
+
         out.println("  Dirt left: \t" + getDirtScore() + "\t("
                 + getNumDirtyLocs() + ")");
         out.println("  Bumps: \t" + getBumpsScore() + "\t(" + numBumps + ")");
