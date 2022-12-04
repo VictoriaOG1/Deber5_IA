@@ -1,6 +1,7 @@
-#Proyecto 5
+# Proyecto 5 #
 
-##Integrantes:
+## Integrantes: ##
+
 - José Luis Santillán
 - Alejandra Ospina 
 - Pamela Mena
