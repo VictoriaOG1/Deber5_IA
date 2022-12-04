@@ -6,19 +6,17 @@ import agent.Action;
 import agent.Agent;
 import agent.Percept;
 
-
 public class VacAgent extends Agent {
     private final String ID = "1";
 
     // Agent state, position, direction, and map information.
-    private InternalState vacuumState;
+    private InterState vacuumState;
 
-    //Helper for agent to choose what next action do
+    // Helper for agent to choose what next action do
     private Path path;
 
-
     public VacAgent() {
-        vacuumState = new InternalState();
+        vacuumState = new InterState();
         path = new Path(vacuumState);
     }
 
@@ -29,7 +27,7 @@ public class VacAgent extends Agent {
         }
 
         // Update the internal state with the percept
-        vacuumState.update((VacPercept) p);
+        vacuumState.updateS((VacPercept) p);
     }
 
     @Override

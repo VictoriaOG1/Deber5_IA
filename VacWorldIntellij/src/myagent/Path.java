@@ -17,52 +17,48 @@ import vacworld.TurnLeft;
 import vacworld.TurnRight;
 import agent.Action;
 
-
 public class Path {
 
-    /* agent's internal state */
-    InternalState vacuumState;
+    // Agent's internal state
+    InterState vacuumState;
 
-    /* actions that the agent may decide to take */
+    // Actions that the agent may decide to take
     LinkedList<Action> planVacuum;
 
-
-    public Path(InternalState vacuumState) {
+    public Path(InterState vacuumState) {
         this.vacuumState = vacuumState;
         this.planVacuum = new LinkedList<Action>();
     }
 
-    /* next Action for agent to perform */
-
+    // Next Action for agent to perform
     public Action nextAction() {
-        if (vacuumState.isTurnedOff()) {
+        if (vacuumState.isTOff()) {
             return null;
         }
 
-
-    // dynamically change the plan.
-        if (vacuumState.isObstacleSeen() || vacuumState.isDirtSeen()
-                || vacuumState.isFeltBump()) {
+        // Dynamically change the plan
+        if (vacuumState.isObstSeen() || vacuumState.isDirtDetected()
+                || vacuumState.isFbump()) {
             planVacuum.clear();
         }
 
-    // If there's no plan, build a new plan
+        // If there's no plan, build a new plan
         if (planVacuum.isEmpty()) {
             buildPlanVacuum();
         }
 
-        Action next = planVacuum.remove();
+        Action nextStep = planVacuum.remove();
 
-    // Update agent state according to what action are about to perform
-        vacuumState.update(next);
+        // Update agent state according to what action are about to perform
+        vacuumState.updateIS(nextStep);
 
-        return next;
+        return nextStep;
     }
 
-    //build plan depend on the current action
+    // Build plan depend on the curr action
     private void buildPlanVacuum() {
-        final Vector2 position = vacuumState.getAgentPosition();
-        if (vacuumState.isLocationDirty(position)) {
+        final PosVector position = vacuumState.getAgentP();
+        if (vacuumState.isLocDirty(position)) {
             planVacuum.add(new SuckDirt());
         } else {
             nPlan();
@@ -72,36 +68,37 @@ public class Path {
         }
     }
 
-
+    // Builds a movement plan for the agent by adding actions
     private void nPlan() {
-        // Find an unexplored location best path to move using turn cost and Manhattan distance
-        final Vector2 unexplored = unexploredPosition();
+        // Find an unexplored location best path to move using
+        // turn cost and Manhattan distance
+        final PosVector unexplored = unexploredPosition();
 
-        // done exploring all
+        // Done exploring all
         if (unexplored == null) {
             return;
         }
 
         // Use an A* search to find the best path
-        LinkedList<Vector2> path = findPath(unexplored);
+        LinkedList<PosVector> path = findPath(unexplored);
 
         if (!path.isEmpty()) {
             path.remove();
         }
 
-        Vector2 current = vacuumState.getAgentPosition();
-        Vector2 next;
-        int currentDirection = vacuumState.getAgentDirection();
+        PosVector curr = vacuumState.getAgentP();
+        PosVector nextStep;
+        int currentDirection = vacuumState.getAgentD();
         int nextDirection;
 
-        //build the correct sequence of actions in plan
+        // Build the correct sequence of actions in plan
         while (!path.isEmpty()) {
-            next = path.remove();
+            nextStep = path.remove();
 
-            // direction between the two tiles, current and next are adjacent
+            // Direction between the two tiles, curr and nextStep are adjacent
 
-            nextDirection = Vector2.vectorToDirection(Vector2
-                    .sub(next, current));
+            nextDirection = PosVector.vecToDir(PosVector
+                    .subtraction(nextStep, curr));
 
             if (nextDirection != currentDirection) {
 
@@ -123,37 +120,37 @@ public class Path {
 
             planVacuum.add(new GoForward());
 
-            current = next;
+            curr = nextStep;
             currentDirection = nextDirection;
         }
     }
 
+    // Finds an unexplored position to explore
+    private PosVector unexploredPosition() {
 
-    private Vector2 unexploredPosition() {
-
-        final HashMap<Vector2, LocationInformation> map = vacuumState.getWorldMap();
-        Entry<Vector2, LocationInformation> pair;
+        final HashMap<PosVector, PositionData> map = vacuumState.getMap();
+        Entry<PosVector, PositionData> pair;
 
         // Lowest cost initialized to the maximum value possible
-        int lowestCost = Integer.MAX_VALUE;
+        int lowestC = Integer.MAX_VALUE;
         int cost;
-        Vector2 lowestCostPosition = null;
+        PosVector lowestCostPosition = null;
 
-        // find the lowest cost position using heuristic
-        Iterator<Entry<Vector2, LocationInformation>> it = map.entrySet()
+        // Find the lowest cost position using heuristic
+        Iterator<Entry<PosVector, PositionData>> it = map.entrySet()
                 .iterator();
-        Vector2 pos;
+        PosVector pos;
 
         while (it.hasNext()) {
             pair = it.next();
             pos = pair.getKey();
-            if (!vacuumState.isLocationExplored(pos)
-                    && !vacuumState.isLocationObstacle(pos)) {
-                cost = HeuristicVac.getCost(vacuumState.getAgentPosition(), pos,
-                        vacuumState.getAgentDirection());
+            if (!vacuumState.isLocExplored(pos)
+                    && !vacuumState.isLocObstacle(pos)) {
+                cost = HeuristicVac.getCost(vacuumState.getAgentP(), pos,
+                        vacuumState.getAgentD());
 
-                if (cost < lowestCost) {
-                    lowestCost = cost;
+                if (cost < lowestC) {
+                    lowestC = cost;
                     lowestCostPosition = pair.getKey();
                 }
             }
@@ -163,38 +160,40 @@ public class Path {
         return lowestCostPosition;
     }
 
-    //Find the shortest known path between the current position and the given goal position, uses A*.
-    private LinkedList<Vector2> findPath(Vector2 goal) {
-        //start position and direction
-        Vector2 start = vacuumState.getAgentPosition();
-        int currentDirection = vacuumState.getAgentDirection();
+    // Find the shortest known path between the curr position
+    // and the given goal position, uses A*
+    private LinkedList<PosVector> findPath(PosVector goal) {
 
-        // posibble G score
+        // Start position and direction
+        PosVector start = vacuumState.getAgentP();
+        int currentDirection = vacuumState.getAgentD();
+
+        // Posibble G score
         int possibleG;
 
-        HashMap<Vector2, Vector2> cameFrom = new HashMap<Vector2, Vector2>();
+        HashMap<PosVector, PosVector> cameF = new HashMap<PosVector, PosVector>();
 
-        final HashMap<Vector2, Integer> g = new HashMap<Vector2, Integer>();
-        final HashMap<Vector2, Integer> f = new HashMap<Vector2, Integer>();
+        final HashMap<PosVector, Integer> g = new HashMap<PosVector, Integer>();
+        final HashMap<PosVector, Integer> f = new HashMap<PosVector, Integer>();
 
-        HashMap<Vector2, LocationInformation> worldMap = vacuumState.getWorldMap();
-        Iterator<Entry<Vector2, LocationInformation>> it = worldMap.entrySet()
+        HashMap<PosVector, PositionData> wMap = vacuumState.getMap();
+        Iterator<Entry<PosVector, PositionData>> it = wMap.entrySet()
                 .iterator();
         while (it.hasNext()) {
-            Vector2 pos = it.next().getKey();
+            PosVector pos = it.next().getKey();
             f.put(pos, 0);
             g.put(pos, 0);
         }
 
-        // priority queue on f-scores.
-        PriorityQueue<Vector2> open = new PriorityQueue<Vector2>(11,
-                new Comparator<Vector2>() {
-                    public int compare(Vector2 a, Vector2 b) {
+        // Priority queue on f-scores.
+        PriorityQueue<PosVector> o = new PriorityQueue<PosVector>(11,
+                new Comparator<PosVector>() {
+                    public int compare(PosVector a, PosVector b) {
                         return f.get(a) - f.get(b);
                     }
                 });
 
-        Set<Vector2> closed = new HashSet<Vector2>();
+        Set<PosVector> closed = new HashSet<PosVector>();
         g.put(start, 0);
         f.put(start,
                 g.get(start)
@@ -203,33 +202,33 @@ public class Path {
 
         // Linked List to keep track of neighbors, Vector elements
 
-        LinkedList<Vector2> neighbors;
-        Vector2 neighbor;
-        Vector2 current;
+        LinkedList<PosVector> neighbors;
+        PosVector neighbor;
+        PosVector curr;
 
-        // Add the start node to the open set
-        open.add(start);
+        // Add the start node to the o set
+        o.add(start);
 
-        while (!open.isEmpty()) {
-            current = open.remove();
+        while (!o.isEmpty()) {
+            curr = o.remove();
 
-            if (current.equals(goal)) {
-                return buildPath(cameFrom, goal);
+            if (curr.equals(goal)) {
+                return buildPath(cameF, goal);
             }
 
-            open.remove(current);
-            closed.add(current);
+            o.remove(curr);
+            closed.add(curr);
 
-            neighbors = vacuumState.neighbors(current);
-            Iterator<Vector2> it2 = neighbors.iterator();
+            neighbors = vacuumState.nextTo(curr);
+            Iterator<PosVector> it2 = neighbors.iterator();
             while (it2.hasNext()) {
                 neighbor = it2.next();
 
-                currentDirection = Vector2.vectorToDirection(Vector2.sub(
-                        neighbor, current));
+                currentDirection = PosVector.vecToDir(PosVector.subtraction(
+                        neighbor, curr));
 
-                possibleG = g.get(current)
-                        + InternalState.adjacentCost(current, neighbor,
+                possibleG = g.get(curr)
+                        + InterState.adjCost(curr, neighbor,
                                 currentDirection);
                 if (closed.contains(neighbor) && possibleG >= g.get(neighbor)) {
                     continue;
@@ -237,15 +236,15 @@ public class Path {
 
                 // Update the appropriate data structures with best path
                 if (g.get(neighbor) == 0 || possibleG < g.get(neighbor)) {
-                    cameFrom.put(neighbor, current);
+                    cameF.put(neighbor, curr);
                     g.put(neighbor, possibleG);
 
                     f.put(neighbor,
                             g.get(neighbor)
                                     + HeuristicVac.getCost(neighbor, goal,
                                             currentDirection));
-                    if (!open.contains(neighbor)) {
-                        open.add(neighbor);
+                    if (!o.contains(neighbor)) {
+                        o.add(neighbor);
                     }
                 }
             }
@@ -256,16 +255,16 @@ public class Path {
     }
 
     // Recursively constructs the optimal path found using A* algorithm
-    private static LinkedList<Vector2> buildPath(
-            HashMap<Vector2, Vector2> cameFrom, Vector2 current) {
-        LinkedList<Vector2> p;
-        if (cameFrom.containsKey(current)) {
-            p = buildPath(cameFrom, cameFrom.get(current));
-            p.add(current);
+    private static LinkedList<PosVector> buildPath(
+            HashMap<PosVector, PosVector> cameF, PosVector curr) {
+        LinkedList<PosVector> p;
+        if (cameF.containsKey(curr)) {
+            p = buildPath(cameF, cameF.get(curr));
+            p.add(curr);
             return p;
         } else {
-            p = new LinkedList<Vector2>();
-            p.add(current);
+            p = new LinkedList<PosVector>();
+            p.add(curr);
             return p;
         }
     }
